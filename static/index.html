@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Todo App</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="container">
+    <h2>Todo List</h2>
+
+    <div class="input-box">
+        <input id="task" placeholder="Enter task">
+        <button onclick="addTodo()">Add</button>
+    </div>
+
+    <ul id="list"></ul>
+</div>
+
+<script>
+async function loadTodos() {
+    let res = await fetch("/todos");
+    let data = await res.json();
+    let list = document.getElementById("list");
+    list.innerHTML = "";
+    data.forEach(t => {
+        list.innerHTML += `<li>${t.title} <button onclick="del(${t.id})">X</button></li>`;
+    });
+}
+
+async function addTodo() {
+    let title = document.getElementById("task").value;
+    await fetch("/todos", {
+        method: "POST",
+        headers: {"Content-Type":"application/json"},
+        body: JSON.stringify({title})
+    });
+    document.getElementById("task").value="";
+    loadTodos();
+}
+
+async function del(id) {
+    await fetch(`/todos/${id}`, {method:"DELETE"});
+    loadTodos();
+}
+
+loadTodos();
+</script>
+
+</body>
+</html>
